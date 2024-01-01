@@ -27,7 +27,7 @@ class LoginPage extends StatelessWidget {
                 ),
               ),
             ),
-            CustomTextFormFieldLogin(),
+            const CustomTextFormFieldLogin(),
             CustomTACButton(
               title: "Don't have an account? Register",
               margin: const EdgeInsets.only(top: 50, bottom: 73),

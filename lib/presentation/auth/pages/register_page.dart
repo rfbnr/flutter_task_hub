@@ -33,7 +33,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
             ),
-            CustomTextFormFieldRegister(),
+            const CustomTextFormFieldRegister(),
             CustomTACButton(
               title: "Have an account? Login",
               margin: const EdgeInsets.only(top: 50, bottom: 73),
