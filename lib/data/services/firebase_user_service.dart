@@ -1,9 +1,27 @@
+import 'dart:io';
+
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
 import 'package:task_hub/data/models/user_model.dart';
 
 class FirebaseUserService {
   final CollectionReference _userReference =
       FirebaseFirestore.instance.collection("users");
+
+  Future<String> uploadImgToFirebase(File imageFile) async {
+    try {
+      firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance
+          .ref()
+          .child("user-image")
+          .child("${DateTime.now().toString()}.png");
+
+      await ref.putFile(imageFile);
+      String imageUrl = await ref.getDownloadURL();
+      return imageUrl;
+    } catch (e) {
+      rethrow;
+    }
+  }
 
   Future<void> setUser(UserModel user) async {
     try {
@@ -22,17 +40,21 @@ class FirebaseUserService {
     try {
       DocumentSnapshot snapshot = await _userReference.doc(userId).get();
 
-      UserModel user = UserModel(
-        id: userId,
-        name: snapshot["name"],
-        email: snapshot["email"],
-        role: snapshot["role"],
-        photo: snapshot["photo"],
-      );
+      if (snapshot.exists) {
+        UserModel user = UserModel(
+          id: userId,
+          name: snapshot["name"],
+          email: snapshot["email"],
+          role: snapshot["role"],
+          photo: snapshot["photo"],
+        );
 
-      return user;
+        return user;
+      } else {
+        throw Exception("User data not found!");
+      }
     } catch (e) {
-      rethrow;
+      throw Exception("Error fetching user data: $e");
     }
   }
 }

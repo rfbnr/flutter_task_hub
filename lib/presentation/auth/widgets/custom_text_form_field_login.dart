@@ -17,43 +17,11 @@ class CustomTextFormFieldLogin extends StatefulWidget {
 
 class _CustomTextFormFieldLoginState extends State<CustomTextFormFieldLogin> {
   final FirebaseAuthService _auth = FirebaseAuthService();
+  bool isLoading = false;
+  bool passwordVisibility = true;
 
-  TextEditingController emailAddressController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-
-  Future<void> _login() async {
-    try {
-      String email = emailAddressController.text;
-      String password = passwordController.text;
-
-      UserModel user = await _auth.login(email: email, password: password);
-
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) {
-        return DashboardPage(user: user);
-      }));
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          backgroundColor: AppColors.kGreenColor,
-          content: Text("Berhasil Login"),
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          backgroundColor: AppColors.kRedColor,
-          content: Text(e.toString()),
-        ),
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    emailAddressController.dispose();
-    passwordController.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -74,32 +42,112 @@ class _CustomTextFormFieldLoginState extends State<CustomTextFormFieldLogin> {
       child: Column(
         children: [
           CustomTextFormFieldItem(
-            title: "Email Address",
-            hintText: "Your email address",
-            controller: emailAddressController,
+            title: "Email",
+            hintText: "Masukkan email anda",
+            controller: emailController,
           ),
           CustomTextFormFieldItem(
             title: "Password",
-            hintText: "Your Password",
-            obscureText: true,
+            hintText: "Masukkan password anda",
+            obscureText: passwordVisibility,
             controller: passwordController,
             suffixIcon: GestureDetector(
-              onTap: () {},
-              child: const Icon(
-                Icons.visibility_off,
+              onTap: () {
+                setState(() {
+                  passwordVisibility = !passwordVisibility;
+                });
+              },
+              child: Icon(
+                passwordVisibility ? Icons.visibility_off : Icons.visibility,
                 color: AppColors.kGreyColor,
               ),
             ),
           ),
-          CustomButton(
-            title: "Login",
-            margin: const EdgeInsets.only(top: 20),
-            onPressed: () {
-              _login();
-            },
-          ),
+          isLoading
+              ? const Center(
+                  child: CircularProgressIndicator(),
+                )
+              : CustomButton(
+                  title: "Login",
+                  margin: const EdgeInsets.only(top: 20),
+                  onPressed: () {
+                    _login();
+                  },
+                ),
         ],
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    passwordController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _login() async {
+    try {
+      String email = emailController.text;
+      String password = passwordController.text;
+
+      if (email.isEmpty && password.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: AppColors.kRedColor,
+            content: Text("Silahkan isi email & password anda!"),
+          ),
+        );
+      } else if (email.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: AppColors.kRedColor,
+            content: Text("Silahkan isi email anda!"),
+          ),
+        );
+      } else if (password.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            backgroundColor: AppColors.kRedColor,
+            content: Text("Silahkan isi password anda!"),
+          ),
+        );
+      } else {
+        setState(() {
+          isLoading = true;
+        });
+
+        UserModel user = await _auth.login(email: email, password: password);
+
+        Future.microtask(() {
+          Navigator.pushAndRemoveUntil(context,
+              MaterialPageRoute(builder: (context) {
+            return DashboardPage(user: user);
+          }), (route) => false);
+
+          setState(() {
+            isLoading = false;
+          });
+
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              backgroundColor: AppColors.kGreenColor,
+              content: Text("Berhasil Login"),
+            ),
+          );
+        });
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          backgroundColor: AppColors.kRedColor,
+          content: Text(e.toString()),
+        ),
+      );
+
+      setState(() {
+        isLoading = false;
+      });
+    }
   }
 }

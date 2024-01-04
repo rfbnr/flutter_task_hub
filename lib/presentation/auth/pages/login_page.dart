@@ -29,7 +29,7 @@ class LoginPage extends StatelessWidget {
             ),
             const CustomTextFormFieldLogin(),
             CustomTACButton(
-              title: "Don't have an account? Register",
+              title: "Belum punya akun? Register",
               margin: const EdgeInsets.only(top: 50, bottom: 73),
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {

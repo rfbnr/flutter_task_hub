@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 
 import '../../../core/components/custom_button.dart';
 import '../../../core/constants/colors.dart';
+import '../../../core/constants/font_weight.dart';
 import '../../../data/models/user_model.dart';
 import '../../auth/pages/login_page.dart';
+import '../widgets/card_profile.dart';
 
 class ProfilePage extends StatelessWidget {
   const ProfilePage({super.key, required this.user});
@@ -13,16 +15,24 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+    return SafeArea(
+      child: ListView(
+        padding: const EdgeInsets.symmetric(horizontal: 22),
         children: [
-          Text("Name : ${user.name}"),
-          Text("Email : ${user.email}"),
-          Text("Role : ${user.role}"),
+          Container(
+            margin: const EdgeInsets.only(top: 30),
+            child: const Text(
+              "My Profile",
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: AppFontWeight.semiBold,
+              ),
+            ),
+          ),
+          CardProfile(user: user),
           CustomButton(
             title: "Logout",
-            margin: const EdgeInsets.symmetric(horizontal: 22, vertical: 16),
+            margin: const EdgeInsets.symmetric(vertical: 30),
             onPressed: () {
               try {
                 FirebaseAuth.instance.signOut();

@@ -35,7 +35,7 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
             const CustomTextFormFieldRegister(),
             CustomTACButton(
-              title: "Have an account? Login",
+              title: "Sudah punya akun? Login",
               margin: const EdgeInsets.only(top: 50, bottom: 73),
               onPressed: () {
                 Navigator.push(context, MaterialPageRoute(builder: (context) {

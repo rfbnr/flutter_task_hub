@@ -1,4 +1,3 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
@@ -38,6 +37,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: "Task Hub",
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         useMaterial3: true,
       ),
@@ -46,12 +46,16 @@ class MyApp extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const CustomLoading();
+          } else if (snapshot.hasError) {
+            return const Text("Error fetching user data");
           } else if (snapshot.hasData) {
             return FutureBuilder<UserModel>(
               future: FirebaseUserService().getUserById(snapshot.data!.uid),
               builder: (context, userSnapshot) {
                 if (userSnapshot.connectionState == ConnectionState.waiting) {
                   return const CustomLoading();
+                } else if (userSnapshot.hasError) {
+                  return const Text("Error fetching user data");
                 } else if (userSnapshot.hasData) {
                   return DashboardPage(user: userSnapshot.data!);
                 } else {
